@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>WebWizard Study Plan</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="p-4">
+    <div class="container">
+        <h2>📘 WebWizard — Your Smart Study Plan 📘</h2>
+        <a href="/" class="btn btn-secondary mb-3">Back</a>
+
+        <!-- Daily Schedules -->
+        <div>
+            {% for day, lines in schedule.items() %}
+            <div class="card mb-3">
+                <div class="card-header"><strong>{{ day }}</strong></div>
+                <div class="card-body">
+                    <ul>
+                        {% for ln in lines %}
+                        <li>{{ ln }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Progress Chart -->
+        <h4>Final Progress</h4>
+        <canvas id="progressChart" width="600" height="200"></canvas>
+
+        <script>
+            const labels = {{ final_progress.keys() | list | tojson }};
+            const data = {{ final_progress.values() | list | tojson }};
+            const ctx = document.getElementById('progressChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Progress (%) after plan',
+                        data: data,
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: { beginAtZero: true, max: 100 }
+                    }
+                }
+            });
+        </script>
+    </div>
+</body>
+
+</html>
