@@ -22,11 +22,17 @@ def generate_schedule(start_date_str, end_date_str,
                       dinner_start, dinner_end,
                       desired_hours, selected_subjects, progress_in):
 
+    # Fallback defaults if None
+    if not start_date_str:
+        start_date_str = datetime.today().strftime("%Y-%m-%d")
+    if not end_date_str:
+        end_date_str = (datetime.today() + timedelta(days=7)).strftime("%Y-%m-%d")
+
     start_date = datetime.strptime(start_date_str, "%Y-%m-%d").date()
     end_date = datetime.strptime(end_date_str, "%Y-%m-%d").date()
     days = (end_date - start_date).days + 1
 
-    # Convert times
+    # Convert times to float hours
     ss = time_to_float(school_start); se = time_to_float(school_end)
     ls = time_to_float(lunch_start); le = time_to_float(lunch_end)
     ds = time_to_float(dinner_start); de = time_to_float(dinner_end)
@@ -109,30 +115,48 @@ def generate_schedule(start_date_str, end_date_str,
 
 @app.route("/", methods=["GET"])
 def index():
-    return render_template("index.html", subjects=SUBJECTS)
+    return render_template("index.html", subjects=SUBJECTS, datetime=datetime, timedelta=timedelta)
 
 @app.route("/generate", methods=["POST"])
 def generate():
     form = request.form
+
+    # ✅ Use fallback defaults to prevent errors
+    current_date = form.get("current_date") or datetime.today().strftime("%Y-%m-%d")
+    exam_date = form.get("exam_date") or (datetime.today() + timedelta(days=7)).strftime("%Y-%m-%d")
+
     schedule, final_progress = generate_schedule(
-        form.get("current_date"), form.get("exam_date"),
-        form.get("school_start"), form.get("school_end"),
-        form.get("lunch_start"), form.get("lunch_end"),
-        form.get("dinner_start"), form.get("dinner_end"),
+        current_date,
+        exam_date,
+        form.get("school_start"),
+        form.get("school_end"),
+        form.get("lunch_start"),
+        form.get("lunch_end"),
+        form.get("dinner_start"),
+        form.get("dinner_end"),
         float(form.get("desired_hours") or 0.0),
         form.getlist("subjects"),
         {s: float(form.get(f"progress_{s}", 0)) for s in SUBJECTS}
     )
-    return render_template("schedule.html", schedule=schedule, final_progress=final_progress)
+    return render_template("schedule.html", schedule=schedule, final_progress=final_progress, request=request)
 
 @app.route("/download_pdf", methods=["POST"])
 def download_pdf():
     form = request.form
+
+    # Same default handling
+    current_date = form.get("current_date") or datetime.today().strftime("%Y-%m-%d")
+    exam_date = form.get("exam_date") or (datetime.today() + timedelta(days=7)).strftime("%Y-%m-%d")
+
     schedule, final_progress = generate_schedule(
-        form.get("current_date"), form.get("exam_date"),
-        form.get("school_start"), form.get("school_end"),
-        form.get("lunch_start"), form.get("lunch_end"),
-        form.get("dinner_start"), form.get("dinner_end"),
+        current_date,
+        exam_date,
+        form.get("school_start"),
+        form.get("school_end"),
+        form.get("lunch_start"),
+        form.get("lunch_end"),
+        form.get("dinner_start"),
+        form.get("dinner_end"),
         float(form.get("desired_hours") or 0.0),
         form.getlist("subjects"),
         {s: float(form.get(f"progress_{s}", 0)) for s in SUBJECTS}

@@ -3,93 +3,150 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebWizard — Study Planner</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>WebWizard</title>
     <style>
-        /* Dark Mode Styles */
-        body.dark-mode {
-            background: #000000;
-            color: #e0e0e0;
+        /* Background and font */
+        body {
+            background-color: #0a0a0a;
+            color: #ffffff;
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            padding: 20px;
         }
 
-        body.dark-mode .container {
-            background: #111111;
-            color: #e0e0e0;
-            box-shadow: 0px 0px 20px rgba(0, 183, 255, 0.5);
+        h1 {
+            font-size: 3em;
+            color: #00ffff;
+            text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff, 0 0 20px #ff00ff, 0 0 30px #ff00ff;
         }
 
-        body.dark-mode .btn-primary {
-            background-color: #ff1744;
-            color: #fff;
-            box-shadow: 0px 0px 10px rgba(255, 23, 68, 0.8);
+        form {
+            background-color: rgba(10, 10, 10, 0.85);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px #ff00ff, 0 0 40px #00ffff;
+            display: inline-block;
+            margin-top: 20px;
         }
 
-        body.dark-mode .btn-primary:hover {
-            background-color: #d50000;
-            box-shadow: 0px 0px 15px rgba(255, 23, 68, 1);
+        input[type="date"],
+        input[type="time"],
+        input[type="number"] {
+            padding: 8px;
+            margin: 5px;
+            border: 2px solid #ff00ff;
+            border-radius: 8px;
+            background-color: #0a0a0a;
+            color: #00ffff;
+            font-weight: bold;
+            box-shadow: 0 0 5px #ff00ff, 0 0 10px #00ffff;
+            outline: none;
         }
 
-        body.dark-mode .btn-success {
-            background-color: #2979ff;
-            box-shadow: 0px 0px 10px rgba(41, 121, 255, 0.8);
+        input[type="checkbox"] {
+            accent-color: #ff00ff;
+            transform: scale(1.2);
+            margin-right: 5px;
+            cursor: pointer;
         }
 
-        body.dark-mode .btn-success:hover {
-            background-color: #2962ff;
-            box-shadow: 0px 0px 15px rgba(41, 121, 255, 1);
+        button {
+            padding: 10px 25px;
+            margin-top: 15px;
+            font-size: 1.2em;
+            color: #0a0a0a;
+            background: linear-gradient(45deg, #00ffff, #ff00ff);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 0 10px #00ffff, 0 0 20px #ff00ff;
+            transition: 0.3s all ease-in-out;
         }
 
-        body.dark-mode h2 {
-            color: #ff1744;
-            text-shadow: 0px 0px 10px rgba(41, 121, 255, 0.8);
+        button:hover {
+            box-shadow: 0 0 20px #00ffff, 0 0 40px #ff00ff, 0 0 60px #ffffff;
+            transform: scale(1.05);
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+            color: #ff00ff;
+            text-shadow: 0 0 5px #ff00ff;
+        }
+
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* New Download PDF button style */
+        .pdf-button {
+            background: linear-gradient(135deg, #ff00ff, #00ffff);
+            color: #0a0a0a;
+            margin-left: 10px;
+            box-shadow: 0 0 15px #ff00ff, 0 0 30px #00ffff;
+        }
+
+        .pdf-button:hover {
+            box-shadow: 0 0 30px #ff00ff, 0 0 60px #00ffff, 0 0 90px #ffffff;
+            transform: scale(1.05);
         }
     </style>
 </head>
 
-<body class="p-4">
+<body>
+    <h1>WebWizard</h1>
+    <form method="POST" action="/generate">
+        <label for="current_date">Current Date (example: 2025-09-07)</label>
+        <input type="date" id="current_date" name="current_date" required>
 
-    <!-- Dark Mode Toggle -->
-    <button id="darkModeToggle" class="btn btn-primary" style="float:right; margin-bottom:10px;">
-        🌙 Dark Mode
-    </button>
+        <label for="exam_date">Exam Date (example: 2025-10-01)</label>
+        <input type="date" id="exam_date" name="exam_date" required>
 
-    <!-- Main Content -->
-    <div class="container">
-        <h2>✨ WebWizard — Your AI Study Planner ✨</h2>
+        <label for="school_start">School Start Time (HH:MM)</label>
+        <input type="time" id="school_start" name="school_start" value="07:00" required>
 
-        <form method="post" action="/generate">
-            <div class="mb-3">
-                <label for="subject" class="form-label">Enter Subject:</label>
-                <input type="text" id="subject" name="subject" class="form-control">
-            </div>
-            <button type="submit" class="btn btn-success">Generate Plan</button>
-        </form>
-    </div>
+        <label for="school_end">School End Time (HH:MM)</label>
+        <input type="time" id="school_end" name="school_end" value="15:10" required>
 
-    <!-- JavaScript -->
-    <script>
-        // Load saved mode
-        if (localStorage.getItem('darkMode') === 'enabled') {
-            document.body.classList.add('dark-mode');
-            document.getElementById('darkModeToggle').innerText = "🌞 Light Mode";
-        }
+        <label for="lunch_start">Lunch Start (HH:MM)</label>
+        <input type="time" id="lunch_start" name="lunch_start" value="13:00" required>
 
-        // Toggle mode
-        document.getElementById('darkModeToggle').addEventListener('click', () => {
-            document.body.classList.toggle('dark-mode');
+        <label for="lunch_end">Lunch End (HH:MM)</label>
+        <input type="time" id="lunch_end" name="lunch_end" value="13:30" required>
 
-            if (document.body.classList.contains('dark-mode')) {
-                localStorage.setItem('darkMode', 'enabled');
-                document.getElementById('darkModeToggle').innerText = "🌞 Light Mode";
-            } else {
-                localStorage.setItem('darkMode', 'disabled');
-                document.getElementById('darkModeToggle').innerText = "🌙 Dark Mode";
-            }
-        });
-    </script>
+        <label for="dinner_start">Dinner Start (HH:MM)</label>
+        <input type="time" id="dinner_start" name="dinner_start" value="21:00" required>
 
+        <label for="dinner_end">Dinner End (HH:MM)</label>
+        <input type="time" id="dinner_end" name="dinner_end" value="22:00" required>
+
+        <label for="desired_hours">Desired Study Hours (example: 5)</label>
+        <input type="number" id="desired_hours" name="desired_hours" value="5" min="0" step="0.5" required>
+
+        <label>Subjects:</label>
+        <input type="checkbox" name="subjects" value="Math" checked> Math
+        <input type="checkbox" name="subjects" value="Physics" checked> Physics
+        <input type="checkbox" name="subjects" value="Chemistry" checked> Chemistry
+        <input type="checkbox" name="subjects" value="Biology"> Biology
+        <input type="checkbox" name="subjects" value="English"> English
+        <input type="checkbox" name="subjects" value="Hindi"> Hindi
+
+        <label>Progress in Subjects (0-100%):</label>
+        <input type="number" name="progress_Math" value="0" min="0" max="100"> Math
+        <input type="number" name="progress_Physics" value="0" min="0" max="100"> Physics
+        <input type="number" name="progress_Chemistry" value="0" min="0" max="100"> Chemistry
+        <input type="number" name="progress_Biology" value="0" min="0" max="100"> Biology
+        <input type="number" name="progress_English" value="0" min="0" max="100"> English
+        <input type="number" name="progress_Hindi" value="0" min="0" max="100"> Hindi
+
+        <div>
+            <button type="submit">Generate Schedule</button>
+            <button type="submit" formaction="/download_pdf" formmethod="POST" class="pdf-button">Download PDF</button>
+        </div>
+    </form>
 </body>
 
 </html>
